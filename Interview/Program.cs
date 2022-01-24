@@ -1,26 +1,214 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 
 namespace Interview
 {
-    internal class Program
+    internal partial class Program
     {
         private static void Main(string[] args)
+        {
+            //var obj = new Child("test")
+            //{
+            //    isvalid = true
+            //};
+
+            //obj.Method1();
+            //IndexersExample();
+            //OpenRegKey();
+            //var test = $"fs_dasfdas_4 (FORECAST) [INT(16,(1,9))] 96  ;  60.000";
+            //var obj = new Post();
+            //obj["gamer1"] = new Gamer();
+            //Console.WriteLine(obj["gamer1"]);            
+
+
+            
+
+
+            
+            var reslt = Utilities.Max(2, 5);
+            Console.WriteLine($"{reslt} is max");
+
+            var num = new Nullable<int>();
+            if (num.HasValue)
+                Console.WriteLine(num.GetValueOrDefault());
+            else
+                Console.WriteLine(num.GetValueOrDefault());
+        }
+
+        private static void InhertanceExample()
+        {
+            BaseClass bc = new BaseClass();
+            DerivedClass dc = new DerivedClass();
+            BaseClass bcdc = new DerivedClass();
+
+            // The following two calls do what you would expect. They call  
+            // the methods that are defined in BaseClass.  
+            bc.Method1();
+            bc.Method2();
+            
+            // Output:  
+            // Base - Method1  
+            // Base - Method2  
+
+            // The following two calls do what you would expect. They call  
+            // the methods that are defined in DerivedClass.  
+            dc.Method1();
+            dc.Method2();
+            
+            // Output:  
+            // Derived - Method1  
+            // Derived - Method2  
+
+            // The following two calls produce different results, depending
+            // on whether override (Method1) or new (Method2) is used.  
+            bcdc.Method1();
+            bcdc.Method2();
+            // Output:  
+            // Derived - Method1  
+            // Base - Method2  
+        }
+        public class BaseClass
+        {
+            private protected int test = 10;
+            public virtual void Method1()
+            {
+                Console.WriteLine("Base - Method1");
+            }
+
+            public virtual void Method2()
+            {
+                Console.WriteLine("Base - Method2");
+            }
+        }
+
+        public class DerivedClass : BaseClass
+        {
+            public sealed override void Method1()
+            {
+                Console.WriteLine("Derived - Method1");
+            }
+
+            public override void Method2()
+            {
+                test = 25;
+                Console.WriteLine("Derived - Method2");
+                Console.WriteLine(test);
+            }
+        }       
+        private static void HashingExmaple()
+        {
+            var obj = new Post();
+            obj.Description = "test";
+            string s = JsonConvert.SerializeObject(obj);
+            string hashedData = ComputeSha256Hash(s);
+            Console.WriteLine("Hash {0}", hashedData);
+            obj.Description = "test2";
+            string s1 = JsonConvert.SerializeObject(obj);
+            string hashedData1 = ComputeSha256Hash(s1);
+            Console.WriteLine("Hash {0}", hashedData1);
+            Console.WriteLine("Hash 0 == 1 :{0}", hashedData1 == hashedData);
+            var obj2 = new Post();
+            obj2.Description = "test";
+            string s3 = JsonConvert.SerializeObject(obj2);
+            string hashedData2 = ComputeSha256Hash(s3);
+            Console.WriteLine("Hash {0}", hashedData2);
+            Console.WriteLine("Hash 0 == 2 :{0}", hashedData2 == hashedData);
+        }
+
+        static string ComputeSha256Hash(string rawData)
+        {
+            // Create a SHA256   
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                // ComputeHash - returns byte array  
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+
+                // Convert byte array to a string   
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+        private static void OpenRegKey()
+        {
+            string value64 = string.Empty;
+            string value32 = string.Empty;
+
+            RegistryKey localKey = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Registry64);
+            localKey = localKey.OpenSubKey(@"SOFTWARE\Windows\CurrentVersion\AutoRotation");
+            if (localKey != null)
+            {
+                value64 = localKey.GetValue("RegisteredOrganization").ToString();
+            }
+            RegistryKey localKey32 = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Registry32);
+            localKey32 = localKey32.OpenSubKey(@"SOFTWARE\Windows\CurrentVersion\AutoRotation");
+            if (localKey32 != null)
+            {
+                value32 = localKey32.GetValue("RegisteredOrganization").ToString();
+            }
+        }
+
+        private static void StackExample()
+        {
+            Stack myStack = new Stack();
+
+            //verbatim string example
+            string input = @"Enter you choice 
+1. Push a item
+2. Pop item
+3. Clear list
+4. Exit";
+            Console.WriteLine(input);
+            var choice = Convert.ToInt32(Console.ReadLine());
+            do
+            {
+                switch (choice)
+                {
+                    case 1:
+                        Console.WriteLine("Enter your item");
+                        var item = Console.ReadLine();
+                        myStack.Push(item);
+                        break;
+
+                    case 2:
+                        _ = myStack.Pop();
+                        break;
+
+                    case 3:
+                        myStack.Clear();
+                        break;
+                    default:
+                        break;
+                }
+                Console.WriteLine(input);
+                choice = Convert.ToInt32(Console.ReadLine());
+
+            } while (choice != 4);
+        }        
+
+        private static void StopWatchExcercise()
         {
             Console.WriteLine("Enter start,stop to control the timer:");
             var input = Console.ReadLine();
             StopWatch obj = new StopWatch();
             while (input != "exit")
             {
-                if(input == "start")
+                if (input == "start")
                 {
                     obj.Start();
-                    Console.WriteLine("Timer Started");                                        
+                    Console.WriteLine("Timer Started");
                 }
-                else if(input == "stop")
+                else if (input == "stop")
                 {
                     obj.Stop();
                 }
@@ -39,12 +227,12 @@ namespace Interview
 
         private static void IndexersExample()
         {
-            Calculator test = new Calculator();
+            var test = new Gamer();
             test["Brijesh1"] = 32;
             test["Brijesh2"] = 332;
             test["Brijesh3"] = 55;
 
-            test.GamerAge("Brijesh3");
+            test.GamerAge("Brijesh2");
         }
 
         public static void BiggestNumberAmongCommaSeperatedNumbers()
